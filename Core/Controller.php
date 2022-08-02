@@ -27,7 +27,7 @@ abstract class Controller
         $this->route_params = $route_params;
     }
 
-        /**
+    /**
      * Magic method called when a non-existent or inaccessible method is
      * called on an object of this class. Used to execute before and after
      * filter methods on action methods. Action methods need to be named
@@ -48,7 +48,9 @@ abstract class Controller
                 $this->after();
             }
         } else {
-            echo "Method $method not found in controller " . get_class($this);
+            //echo "Method $method not found in controller " . get_class($this);
+            throw new \Exception("Method $method not found in controller " .
+                                 get_class($this));
         }
     }
 

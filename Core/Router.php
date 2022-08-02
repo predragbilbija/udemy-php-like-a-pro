@@ -13,7 +13,7 @@ class Router
      * Associative array of routes (the routing table)
      * @var array
      */
-    protected $routes = [];
+   public $routes = [];
 
     /**
      * Parameters from the matched route
@@ -46,6 +46,7 @@ class Router
         $this->routes[$route] = $params;
     }
 
+
     /**
      * Get all the routes from the routing table
      *
@@ -65,15 +66,25 @@ class Router
      * @return boolean  true if a match found, false otherwise
      */
     public function match($url)
+
     {
+        echo '<pre>' . var_export($this->routes, true) . '</pre>';
+        
         foreach ($this->routes as $route => $params) {
+            echo '<pre>' . var_export($route, true) . '</pre>';
+            echo '<pre>' . var_export($params, true) . '</pre>';
             if (preg_match($route, $url, $matches)) {
+                echo '<pre>' . var_export($matches, true) . '</pre>';
                 // Get named capture group values
                 foreach ($matches as $key => $match) {
+                    
                     if (is_string($key)) {
+                        echo '<pre>' . var_export($key, true) . '</pre>';
                         $params[$key] = $match;
+                        
                     }
                 }
+                echo '<pre>' . var_export($params, true) . '</pre>';
 
                 $this->params = $params;
                 return true;
@@ -103,31 +114,37 @@ class Router
      */
     public function dispatch($url)
     {
+        // var_dump($url);
         $url = $this->removeQueryStringVariables($url);
+        // var_dump($url);
 
         if ($this->match($url)) {
             $controller = $this->params['controller'];
             $controller = $this->convertToStudlyCaps($controller);
-            // $controller = "App\Controllers\\$controller";
             $controller = $this->getNamespace() . $controller;
+            var_dump($controller);
 
             if (class_exists($controller)) {
                 $controller_object = new $controller($this->params);
 
                 $action = $this->params['action'];
                 $action = $this->convertToCamelCase($action);
+                var_dump($action);
 
-                if (preg_match('/action$/i', $action) == 0) {
+                if (is_callable([$controller_object, $action])) {
                     $controller_object->$action();
 
                 } else {
-                    throw new \Exception("Method $action in controller $controller cannot be called directly - remove the Action suffix to call this method");
+                    //echo "Method $action (in controller $controller) not found";
+                    throw new \Exception("Method $action (in controller $controller) not found");
                 }
             } else {
-                echo "Controller class $controller not found";
+                //echo "Controller class $controller not found";
+                throw new \Exception("Controller class $controller not found");
             }
         } else {
-            echo 'No route matched.';
+            //echo 'No route matched.';
+            throw new \Exception('No route matched.');
         }
     }
 
@@ -196,7 +213,8 @@ class Router
     }
 
     /**
-     * Get the namespace for the controller class. The namespace defined in the route parameters is added if present.
+     * Get the namespace for the controller class. The namespace defined in the
+     * route parameters is added if present.
      *
      * @return string The request URL
      */

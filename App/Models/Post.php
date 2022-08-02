@@ -21,7 +21,7 @@ class Post extends \Core\Model
         //$host = 'localhost';
         //$dbname = 'mvc';
         //$username = 'root';
-        //$password = 'secret';
+        //$password = '';
     
         try {
             //$db = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8",
